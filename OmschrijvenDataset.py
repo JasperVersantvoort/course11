@@ -1,8 +1,8 @@
 import blosum as bl
 matrix = bl.BLOSUM(62)
 
-bestand = open("VoorbeeldDataset.csv")
-f = open("VoorbeeldOmgeschreven.csv", "w")
+bestand = open("gnomad_data.csv")
+f = open("gnomad_data_new.csv", "w")
 f.write(bestand.readline().rstrip() + ",Blosum\n")
 for regel in bestand:
     if "," in regel:
