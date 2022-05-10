@@ -24,7 +24,6 @@ def decision_tree_maker(data):
     # features waarop de data gesplit wordt (weet nog niet zeker welke ik hiervoor ga gebruiken)
     feature_cols = ['mutation', 'class']
     x = data[feature_cols]
-
     y = data.label
 
     # data split
