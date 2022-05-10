@@ -13,8 +13,8 @@ def decision_tree_maker(bestand):
 
     #header=0 zorgt ervoor dat de eerste line niet meegenomen wordt,
     #de namen in deze line zijn vervangen met col_names
-    df = pd.read_csv('test.csv', header=0, low_memory=False, names=col_names)
-    print(df.head())
+    data = pd.read_csv('test.csv', header=0, low_memory=False, names=col_names)
+    print(data.head())
 
 def main():
     bestand = 'test.csv.parq'
