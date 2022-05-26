@@ -13,6 +13,9 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 import numpy as np
 import math
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
 
 
 # Met Conservation_alt en Concervation_ref
@@ -118,7 +121,7 @@ def stephantest(train, val, test):
     print(prediction)
 
     print(mse)
-    print(cf_matrix)
+    print('Confusion matrix: \n', cf_matrix)
     TN = int(cf_matrix[1][1])
     FN = int(cf_matrix[1][0])
     FP = int(cf_matrix[0][1])
@@ -149,15 +152,112 @@ def stephantest(train, val, test):
     print("De MCC is: ", MCC)
     print("De FDR is: ", FDR)
 
+    df = pd.read_csv(test)
+    X_test = df[['Concervation_alt', 'Concervation_ref']].values
+
+    knn = KNeighborsClassifier(n_neighbors=5)
+    knn.fit(X_train, y_train)
+    prediction = knn.predict(X_test)
+
+    print('De predictie op test is:')
+    print(prediction)
+
+
+def pipelinescaling(train, val, test):
+    """
+    Functie die met de k_nearest_neigbour methode een model maken om met
+    de parameters Concervation_alt en Concervation_ref probeert te
+    voorspellen of een mutatie pathogeen of benign is. 1 = Pathogeen,
+    0 is benign
+    :param train: filename van csv met Mutation_name, Concervation_ref,
+    Concervation_alt, Blosumscore, Pathogeen.
+    :param val: filename van csv met Mutation_name, Concervation_ref,
+    Concervation_alt, Blosumscore, Pathogeen.
+    :param test: filename van csv met Mutation_name, Concervation_ref,
+    Concervation_alt, Blosumscore.
+    :return:
+    """
+    # Hier wordt de trainingsset ingelezen, dit is de trainingsset die
+    # bewerkt is door Jasper en ingelezen door Femke
+    df = pd.read_csv(train)
+    X_train = df[['Concervation_alt', 'Concervation_ref']].values
+    y_train = df['Pathogeen']
+
+    # Hier wordt de validatieset ingelezen. Hier wordt het model op getest
+    # hier wordt ook de accuracy op berekend.
+    df = pd.read_csv(test)
+    X_test = df[['Concervation_alt', 'Concervation_ref']].values
+
+
+    # Hier worden de steps van de pipeline gemaakt. In onze pipeline willen
+    # we eerst de data schalen met de StandardScaler en vervolgens een model
+    # bouwen met de KNeighborsClassifier.
+    steps = [('scaler', StandardScaler()), ('knn', KNeighborsClassifier(
+        n_neighbors=60))]
+    pipeline = Pipeline(steps)
+
+    # Met GridSearchCV kan de beste accuracy berekend worden. De accuracy
+    # gaat wel omhoog als er meer neighbours worden gebruikt. Dit kan
+    # kloppen, want hoe meer neighbours hoe meer het voorspeld dat de
+    # mutatie benign is
+
+    # parameters = {'knn__n_neighbors': np.arange(1, 10)}
+    # cv = GridSearchCV(pipeline, param_grid=parameters)
+    # cv.fit(X_train, y_train)
+    # y_pred = cv.predict(X_test)
+    # print(cv.best_params_)
+    # print(cv.score(X_test, y_test))
+
+    knn_scaled = pipeline.fit(X_train, y_train)
+    y_pred = pipeline.predict(X_test)
+    # a = accuracy_score(y_test, y_pred)
+
+    print(a)
+
+    # knn_unscaled = KNeighborsClassifier().fit(X_train, y_train)
+    # b = knn_unscaled.score(X_test, y_test)
+    print(b)
+
+    # cf_matrix = confusion_matrix(y_test, y_pred)
+    # print('Confusion matrix: \n', cf_matrix)
+    # TN = int(cf_matrix[1][1])
+    # FN = int(cf_matrix[1][0])
+    # FP = int(cf_matrix[0][1])
+    # TP = int(cf_matrix[0][0])
+
+    # print(TN, FN, FP, TP)
+    #
+    # x = (TP + FP) * (TP + FN) * (TN + FP) * (TN + FN)
+    # MCC = (TP * TN - FP * FN) / math.sqrt(x)
+
+    # print('De MCC is: ', MCC)
+
+
+    #Hier moet het bestand geschreven worden met als score de voorspelling
+    # voor pathogeen
+    bestand = open("gnomad_data.csv")
+    f = open("gnomad_data_new.csv", "w")
+    f.write(bestand.readline().rstrip() + ",Pathogeen\n")
+    for regel in bestand:
+        if "," in regel:
+            ref = regel.split(",")[1][0]
+            mut = regel.split(",")[1][-1]
+            score = matrix[ref + mut]
+            f.write(regel.rstrip() + "," + str(score) + "\n")
+
+
+
+
 
 if __name__ == '__main__':
     file = "Files/parsed_data_new.csv"
 
     train = "train_data_bio_prodict_denormalized_new.csv"
     val = "valid_data_bio_prodict_denormalized_new.csv"
-    test = ""
+    test = "test_data_bio_prodict_denormalized_new.csv"
 
-    stephantest(train, val, test)
+    # stephantest(train, val, test)
+    pipelinescaling(train, val, test)
 
     # k_nearest_neighbors(file)
 
