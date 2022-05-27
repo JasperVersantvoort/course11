@@ -10,36 +10,27 @@ import pydotplus
 
 def main():
     os.environ["PATH"] += os.pathsep + 'C:\\Program Files\\Graphviz\\bin'
-    bestand = "train_data_bio_prodict_denormalized_new.csv"
-    bestand2 = "test_data_bio_prodict_denormalized_new.csv"
-    data, test_data = data_maker(bestand, bestand2)
-    x_train, x_test, y_train, y_test, feature_cols, X, Y = data_split(data, bestand2)
+    train_bestand = "train_data_bio_prodict_denormalized_new.csv"
+    test_bestand = "test_data_bio_prodict_denormalized_new.csv"
+    data = data_maker(train_bestand)
+    x_train, x_test, y_train, y_test, feature_cols, X, Y = data_split(data, test_bestand)
     clf = tree_builder(x_train, x_test, y_train, y_test, X, Y)
     tree_visualisation(clf, feature_cols)
     #tree_fit(x_train, y_train, feature_cols)
 
 
-def data_maker(bestand, bestand2):
-    #col_names = ["mutation", "conservationPro", "conservationAla", "conservationHis",
-                 # "conservationThr", "conservationGln", "conservationTyr", "conservationGly",
-                 # "conservationArg", "conservationVal", "consWildType", "conservationGlu",
-                 # "conservationMet", "consAervationLys", "conservationIle", "conservationPhe",
-                 # "conservationLeu", "conservationAsn", "conservationSer", "conservationAsp",
-                 # "conservationCys", "consVariant", "conservationTrp", "source", "label"]
-
+def data_maker(train_bestand):
     col_names = ["Mutation_name", "Concervation_ref", "Concervation_alt", "Blosumscore", "Pathogeen"]
 
     # header=0 zorgt ervoor dat de eerste line niet meegenomen wordt,
     # de namen in deze line zijn vervangen met col_names
     #data = pd.read_csv('test.csv', header=0, names=col_names)  # low_memory=False kan bij een error erbij gedaan worden
-    data = pd.read_csv(bestand, header=0, names=col_names)
+    data = pd.read_csv(train_bestand, header=0, names=col_names)
     #test_data = pd.read_csv(bestand2, header=0, names=col_names)
     # print(data.head())
-
     return data
 
-
-def data_split(data, bestand2):
+def data_split(data, test_bestand):
     # features waarop de data gesplit wordt (weet nog niet zeker welke ik hiervoor ga gebruiken)
     #feature_cols = ['features', 'conservationGly']
     feature_cols = ["Concervation_ref", "Concervation_alt", "Blosumscore"]
@@ -50,12 +41,13 @@ def data_split(data, bestand2):
     # data split
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3,
                                                         random_state=1)  # 70% training and 30% test
-    df2 = pd.read_csv(bestand2)
+    df2 = pd.read_csv(test_bestand)
 
     features = ['Concervation_ref', 'Concervation_alt', 'Blosumscore']
 
     X = df2[features]
-    Y = df2['Pathogeen']
+    #wss iets anders dan Blosumscore maar idk wat :(
+    Y = df2['Blosumscore']
 
     return x_train, x_test, y_train, y_test, feature_cols, X, Y
 
