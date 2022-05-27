@@ -234,8 +234,7 @@ def pipelinescaling(train, val, test):
 
     # print('De MCC is: ', MCC)
 
-    print(y_pred)
-    print(names)
+  
     #Hier wordt een bestand weggeschreven met de naam van de mutant en 
     #en de score of het pathogeen/benign is
     list_name_pred = []
