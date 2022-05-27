@@ -2,29 +2,24 @@ import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
-
+import os
 from sklearn.tree import export_graphviz
 from six import StringIO
 from IPython.display import Image
 import pydotplus
 
-import matplotlib.pyplot as plt
-import matplotlib.image as pltimg
-from sklearn import tree
-
-
-
 def main():
-    bestand = 'test.csv.parq'
-    bestand2 = "parsed_data_new.csv"
-    data = data_maker(bestand)
-    x_train, x_test, y_train, y_test, feature_cols, X, Y = data_split(data)
+    os.environ["PATH"] += os.pathsep + 'C:\\Program Files\\Graphviz\\bin'
+    bestand = "train_data_bio_prodict_denormalized_new.csv"
+    bestand2 = "test_data_bio_prodict_denormalized_new.csv"
+    data, test_data = data_maker(bestand, bestand2)
+    x_train, x_test, y_train, y_test, feature_cols, X, Y = data_split(data, bestand2)
     clf = tree_builder(x_train, x_test, y_train, y_test, X, Y)
     tree_visualisation(clf, feature_cols)
     #tree_fit(x_train, y_train, feature_cols)
 
 
-def data_maker(bestand):
+def data_maker(bestand, bestand2):
     #col_names = ["mutation", "conservationPro", "conservationAla", "conservationHis",
                  # "conservationThr", "conservationGln", "conservationTyr", "conservationGly",
                  # "conservationArg", "conservationVal", "consWildType", "conservationGlu",
@@ -37,13 +32,14 @@ def data_maker(bestand):
     # header=0 zorgt ervoor dat de eerste line niet meegenomen wordt,
     # de namen in deze line zijn vervangen met col_names
     #data = pd.read_csv('test.csv', header=0, names=col_names)  # low_memory=False kan bij een error erbij gedaan worden
-    data = pd.read_csv('parsed_data_new.csv', header=0, names=col_names)
+    data = pd.read_csv(bestand, header=0, names=col_names)
+    test_data = pd.read_csv(bestand2, header=0, names=col_names)
     # print(data.head())
 
-    return data
+    return data, test_data
 
 
-def data_split(data):
+def data_split(data, bestand2):
     # features waarop de data gesplit wordt (weet nog niet zeker welke ik hiervoor ga gebruiken)
     #feature_cols = ['features', 'conservationGly']
     feature_cols = ["Concervation_ref", "Concervation_alt", "Blosumscore"]
@@ -54,7 +50,7 @@ def data_split(data):
     # data split
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3,
                                                         random_state=1)  # 70% training and 30% test
-    df2 = pd.read_csv("parsed_data_new.csv")
+    df2 = pd.read_csv(bestand2)
 
     features = ['Concervation_ref', 'Concervation_alt', 'Blosumscore']
 
