@@ -33,10 +33,10 @@ def data_maker(bestand, bestand2):
     # de namen in deze line zijn vervangen met col_names
     #data = pd.read_csv('test.csv', header=0, names=col_names)  # low_memory=False kan bij een error erbij gedaan worden
     data = pd.read_csv(bestand, header=0, names=col_names)
-    test_data = pd.read_csv(bestand2, header=0, names=col_names)
+    #test_data = pd.read_csv(bestand2, header=0, names=col_names)
     # print(data.head())
 
-    return data, test_data
+    return data
 
 
 def data_split(data, bestand2):
